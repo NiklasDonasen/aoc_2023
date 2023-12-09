@@ -32,33 +32,33 @@ class Program
         }
 
         // q1
-        // int q1 = 0;
-        // int indexDirection = 0;
-        // string location = "AAA";
+        int q1 = 0;
+        int indexDirection = 0;
+        string location = "AAA";
 
-        // while (location != "ZZZ")
-        // {
-        //     Console.WriteLine($"Currently at {location}. Going {directions[indexDirection]}");
+        while (location != "ZZZ")
+        {
+            Console.WriteLine($"Currently at {location}. Going {directions[indexDirection]}");
 
-        //     location = directions[indexDirection] switch
-        //     {
-        //         "L" => map[location].Item1,
-        //         "R" => map[location].Item2,
-        //         _ => throw new ArgumentException($"Invalid direction {directions[indexDirection]}")
-        //     };
+            location = directions[indexDirection] switch
+            {
+                "L" => map[location].Item1,
+                "R" => map[location].Item2,
+                _ => throw new ArgumentException($"Invalid direction {directions[indexDirection]}")
+            };
 
-        //     q1++;
-        //     if (indexDirection < directions.Count - 1)
-        //     {
-        //         indexDirection++;
-        //     }
-        //     else
-        //     {
-        //         // reset back to the first direction
-        //         indexDirection = 0;
-        //     }
-        // }
-        // Console.WriteLine($"Answer for q1 is {q1}");
+            q1++;
+            if (indexDirection < directions.Count - 1)
+            {
+                indexDirection++;
+            }
+            else
+            {
+                // reset back to the first direction
+                indexDirection = 0;
+            }
+        }
+        Console.WriteLine($"Answer for q1 is {q1}");
 
 
         // q2
@@ -71,47 +71,37 @@ class Program
         }
 
         // Find LCM
-        long q2 = 0;
-        // cycles.Add(15871);
-        // cycles.Add(19637);
-        // cycles.Add(12643);
-        // cycles.Add(14257);
-        // cycles.Add(21251);
-        // cycles.Add(19099);
-        bool converged = false;
-        long counter = 2;
-        while (!converged)
+        long q2 = CalculateLCM(cycles[0], cycles[1]);
+        for(int i = 2; i < cycles.Count; i++)
         {
-            List<long> temp = [];
-            foreach (long cycle in cycles)
-            {
-                temp.Add(cycle * counter);
-            }
-            cycles.AddRange(temp);
-            // Try to find matching number in all lists
-            var most = cycles.GroupBy(i => i).OrderByDescending(grp => grp.Count()).Select(grp => (grp.Key, grp.Count())).First();
-            // List<long> res = [.. cycles.OrderByDescending(i => i)];
-
-            // if (res[0] == res[2])
-            // {
-            //     q2 = res[0];
-            //     converged = true;
-            // }
-            if (most.Item2 == startingPoints.Count)
-            {
-                q2 = most.Item1;
-                converged = true;
-            }
-            counter++;
+            q2 = CalculateLCM(q2, cycles[i]);
         }
 
         Console.WriteLine($"Answer for q2 is {q2}");
-        // 300452481 is too low
-        // 9219443542493184000
-        // 2056114382356122241 is too high
-        // jeg får 3809040, men det er ikke riktig løsning. Hvorfor det?
+    }
 
+    public static long CalculateLCM(long firstNumber, long secondNumber)
+    {
+        long lcm = firstNumber * secondNumber / CalculateGCD(firstNumber, secondNumber);
 
+        return lcm;
+    }
+
+    public static long CalculateGCD(long firstNumber, long secondNumber)
+    {
+        while (firstNumber != 0 && secondNumber != 0)
+        {
+            if (firstNumber > secondNumber)
+            {
+                firstNumber %= secondNumber;
+            }
+            else
+            {
+                secondNumber %= firstNumber;
+            }
+        }
+
+        return firstNumber | secondNumber;
     }
 
     public static long FindFirstStop(string location, List<string> directions, Dictionary<string, Tuple<string, string>> map)
@@ -144,6 +134,8 @@ class Program
         return steps;
     }
 
+    // below functions did not scale
+
     public static List<string> UpdateLocations(List<string> input, Dictionary<string, Tuple<string, string>> map, List<string> directions, int indexDirection)
     {
         List<string> updatedLocations = [];
@@ -174,25 +166,3 @@ class Program
         return allFinished;
     }
 }
-
-
-// bool allFinished = false;
-// int indexDirection = 0;
-
-// while (!allFinished)
-// {
-//     Console.WriteLine($"Currently at {q2}. Going {directions[indexDirection]}");
-
-//     startingPoints = UpdateLocations(startingPoints, map, directions, indexDirection);
-//     allFinished = CheckLocations(startingPoints);
-//     q2++;
-//     if (indexDirection < directions.Count - 1)
-//     {
-//         indexDirection++;
-//     }
-//     else
-//     {
-//         // reset back to the first direction
-//         indexDirection = 0;
-//     }
-// }
