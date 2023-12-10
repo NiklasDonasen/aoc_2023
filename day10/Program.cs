@@ -98,6 +98,7 @@ class Program
         {
             char currentPipe = 'X';
             bool inside = false;
+            bool horizontal = false;
             for (int col = 0; col < colNumber; col++)
             {
                 Tuple<int, int> toBeChecked = new Tuple<int, int>(row, col);
@@ -122,19 +123,33 @@ class Program
                             case 'J':
                             case 'L':
                             case '|':
-                                if (currentPipe.Equals('J') || currentPipe.Equals('L') || currentPipe.Equals('|'))
+                                if ((currentPipe.Equals('J') || currentPipe.Equals('L') || currentPipe.Equals('|')) && !horizontal)
                                 {
+                                    currentPipe = val;
                                     inside = !inside;
+                                    horizontal = false;
+                                }
+                                else if ((currentPipe.Equals('J') || currentPipe.Equals('L')) && horizontal)
+                                {
+                                    currentPipe = val;
+                                    inside = !inside;
+                                    horizontal = false;
                                 }
                                 break;
                             case 'F':
                             case '7':
                                 if (currentPipe.Equals('F') || currentPipe.Equals('7'))
                                 {
+                                    currentPipe = val;
                                     inside = !inside;
+                                    horizontal = false;
                                 }
                                 break;
                             case '-':
+                                if (currentPipe.Equals('F') || currentPipe.Equals('7') || currentPipe.Equals('J') || currentPipe.Equals('L'))
+                                {
+                                    horizontal = true;
+                                }
                                 break;
 
                         }
