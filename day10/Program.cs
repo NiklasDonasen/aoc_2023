@@ -91,90 +91,35 @@ class Program
             }
         }
         // Replace pipe with correct pipe - I hardcoded it
-        map[startingPoint] = 'F';
+        map[startingPoint] = 'L';
 
         // Count number of times you cross a pipe, but start at the second row
-        for (int row = 1; row < rowNumber; row++)
+        for (int row = 0; row < rowNumber; row++)
         {
-            char currentPipe = 'X';
             bool inside = false;
-            bool horizontal = false;
             for (int col = 0; col < colNumber; col++)
             {
                 Tuple<int, int> toBeChecked = new Tuple<int, int>(row, col);
                 char val = map[toBeChecked];
-
-                if (!val.Equals('.'))
+                switch (val)
                 {
-                    // Crossing a pipe, but we have to check for compatibility to know if we are actually inside a loop
-                    // J, L og |
-                    // 7 og F
-                    // to ganger samme kan lukke
-                    if (currentPipe.Equals('X'))
-                    {
-                        // Going inside the loop
-                        currentPipe = val;
+                    case 'J':
+                    case 'L':
+                    case '|':
                         inside = !inside;
-                    }
-                    else
-                    {
-                        switch (val)
-                        {
-                            case 'J':
-                            case 'L':
-                            case '|':
-                                if ((currentPipe.Equals('J') || currentPipe.Equals('L') || currentPipe.Equals('|')) && !horizontal)
-                                {
-                                    currentPipe = val;
-                                    inside = !inside;
-                                    horizontal = false;
-                                }
-                                else if ((currentPipe.Equals('J') || currentPipe.Equals('L')) && horizontal)
-                                {
-                                    currentPipe = val;
-                                    inside = !inside;
-                                    horizontal = false;
-                                }
-                                break;
-                            case 'F':
-                            case '7':
-                                if (currentPipe.Equals('F') || currentPipe.Equals('7'))
-                                {
-                                    currentPipe = val;
-                                    inside = !inside;
-                                    horizontal = false;
-                                }
-                                break;
-                            case '-':
-                                if (currentPipe.Equals('F') || currentPipe.Equals('7') || currentPipe.Equals('J') || currentPipe.Equals('L'))
-                                {
-                                    horizontal = true;
-                                }
-                                break;
-
-                        }
-                    }
-                }
-                else
-                {
-                    // You are either inside or outside the loop
-                    if (inside)
-                    {
-                        // Don't take values at the edges
-                        if (col < colNumber && row < rowNumber)
+                        break;
+                    case '.':
+                        if (inside)
                         {
                             insideTheLoop++;
                         }
-                    }
+                        break;
                 }
             }
 
         }
 
         Console.WriteLine($"Answer to q2 is {insideTheLoop}");
-        // 929 is not correct --> too high
-        // 940 is too high
-
     }
 
     public static List<Tuple<int, int>> FindNextTiles(Tuple<int, int> location, Dictionary<Tuple<int, int>, char> map)
