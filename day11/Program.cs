@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Runtime.ExceptionServices;
 
 namespace day11;
 
@@ -72,21 +73,13 @@ class Program
         List<Tuple<int, int>> galaxies = newMap.Where(m => m.Value.Equals('#')).Select(m => new Tuple<int, int>(m.Key.Item1, m.Key.Item2)).ToList();
 
         // Find all galaxy-pairs
-        List<List<Tuple<int, int>>> galaxyPairs = [];
-        while (galaxies.Count > 0)
-        {
-            for (int i = 0; i < galaxies.Count - 1; i++)
-            {
-                galaxyPairs.Add([galaxies[i], galaxies[i + 1]]);
-            }
-            galaxies.RemoveAt(0);
-        }
+        var galaxyPairs = galaxies.SelectMany((first, i) => galaxies.Skip(i + 1).Select(second => (first, second))).ToList();
 
-        // Find the shortest path between each pair
+        // // Find the shortest path between each pair
         int q1 = 0;
-        foreach (List<Tuple<int, int>> tuplePair in galaxyPairs)
+        foreach (var tuplePair in galaxyPairs)
         {
-            q1 += shortestPath()
+            q1 += shortestPath(tuplePair.first, tuplePair.second);
         }
 
 
@@ -99,7 +92,7 @@ class Program
     public static int shortestPath(Tuple<int, int> firstPair, Tuple<int, int> secondPair)
     {
         int horizontalSteps = Math.Abs(firstPair.Item2 - secondPair.Item2);
-        int verticalSteps = Math.Abs(firstPair.Item1 - secondPair.Item2);
+        int verticalSteps = Math.Abs(firstPair.Item1 - secondPair.Item1);
 
         return horizontalSteps + verticalSteps;
     }
