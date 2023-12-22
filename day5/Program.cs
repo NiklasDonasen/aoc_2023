@@ -11,20 +11,16 @@ class Program
         string? line;
 
         // seed number as key, and location as value
-        Dictionary<long, long> seedLocation = [];
+        Dictionary<double, double> seedLocation = [];
 
         // temp dict
-        Dictionary<long, long> tempMap = [];
+        Dictionary<double, double> tempMap = [];
 
         // all seeds
-        List<long> seedNumbers = [];
+        List<double> seedNumbers = [];
 
-        // // You have to populate dictionary with all values
-        // long biggestSeed = 0;
-
-        long q1 = 0;
-        // long q2 = 0;
-        string currentMap = "";
+        double q1and2 = 0;
+        // double q2 = 0;
         int lineNumber = 0;
 
         while ((line = sr.ReadLine()) != null)
@@ -40,109 +36,91 @@ class Program
                 for (int i = 0; i < matcher.Count; i++)
                 {
                     // Get all seeds
-                    seedNumbers.Add((long)Convert.ToDouble(matcher[i].Value));
-                    // // Find the biggest seed
-                    // biggestSeed = seedNumber > biggestSeed ? seedNumber : biggestSeed;
+                    double seed = Convert.ToDouble(matcher[i].Value);
+                    seedNumbers.Add(seed);
+
+                    // q1
+                    // seedLocation[seed] = seed;
+
                 }
-            }
-            else if (line == "")
-            {
-                if (currentMap != "" && currentMap != "seed-to-soil")
+
+                // q2
+                List<double> rangeSeeds = [];
+                for (int j = 0; j < seedNumbers.Count - 1; j++)
                 {
-                    // Update Values based on new tempMap
-                    seedLocation = updateValues(seedLocation, tempMap);
+                    double start = seedNumbers[j];
+                    double range = seedNumbers[j + 1];
+                    for (double step = 0; step < range; step++)
+                    {
+                        rangeSeeds.Add(start + step);
+                    }
+                    j++;
                 }
-                // empty line
-                // Reset the tempMap
-                tempMap = [];
+                foreach (double seed in rangeSeeds)
+                {
+                    seedLocation[seed] = seed;
+                }
+
                 continue;
             }
-            else if (line.Contains(" map:"))
+            if (line.Contains("map"))
             {
-                string[] splitted = line.Split(" ");
-                currentMap = splitted[0];
+                continue;
             }
-            else if (lineNumber == 33)
+            // if numbers, populate the temporary dict
+            if (line != "")
             {
-                seedLocation = updateValues(seedLocation, tempMap, seedNumbers);
+                tempMap = parseNumbers(line, tempMap, seedLocation.Values.Select(m => m).ToList());
             }
+            // if empty line, then update the real dict
             else
             {
-                // Parse the numbers
-                tempMap = parseNumbers(line, tempMap);
-                // biggestSeed = tempMap.Keys.Max() > biggestSeed ? tempMap.Keys.Max() : biggestSeed;
-
-                if (currentMap == "seed-to-soil")
+                if (tempMap.Keys.Count != 0)
                 {
-                    foreach (KeyValuePair<long, long> entry in seedLocation)
-                    {
-                        if (tempMap.TryGetValue(entry.Key, out long value))
-                        {
-                            seedLocation[entry.Key] = value;
-                        }
-                    }
+                    seedLocation = updateValues(seedLocation, tempMap);
+                    tempMap = [];
                 }
             }
         }
 
-        q1 = seedLocation.Values.Min();
-        Console.WriteLine($"Answer to q1 is {q1}");
+        q1and2 = seedLocation.Values.Min();
+        Console.WriteLine($"Answer is {q1and2}");
     }
 
-    public static Dictionary<long, long> updateValues(Dictionary<long, long> curDict, Dictionary<long, long> tempDict, List<long> seedNumbers)
+    public static Dictionary<double, double> updateValues(Dictionary<double, double> curDict, Dictionary<double, double> tempDict)
     {
-        // curDict maps seed to soil
-        // tempDict maps soil to fertilizer
-
-        // Loop over all seeds
-        foreach (long seed in seedNumbers)
-        {
-            // seed is now the key in curDict
-        }
-
         // Now we can loop over all key-value pairs in tempDict and update curDict
-        foreach (KeyValuePair<long, long> entry in curDict)
+        foreach (KeyValuePair<double, double> entry in curDict)
         {
-            long tempKey = entry.Value;
+            double tempKey = entry.Value;
             try
             {
+                // See if you find a corresponding key in tempDict
                 curDict[entry.Key] = tempDict[tempKey];
             }
             catch (KeyNotFoundException)
             {
                 curDict[entry.Key] = tempKey;
             }
-            // // Find curKey based on tempKey
-            // int curKey = curDict.FirstOrDefault(x => x.Value == tempEntry.Key).Key;
-            // curDict[curKey] = tempEntry.Value;
         }
         return curDict;
     }
 
-    public static Dictionary<long, long> parseNumbers(string input, Dictionary<long, long> valueMap)
+    public static Dictionary<double, double> parseNumbers(string input, Dictionary<double, double> valueMap, List<double> seedLocations)
     {
         string[] splitted = input.Split(" ");
-        long destStart = (long)Convert.ToDouble(splitted[0]);
-        long srcStart = (long)Convert.ToDouble(splitted[1]);
-        long rangeLength = (long)Convert.ToDouble(splitted[2]);
+        double destStart = Convert.ToDouble(splitted[0]);
+        double srcStart = Convert.ToDouble(splitted[1]);
+        double rangeLength = Convert.ToDouble(splitted[2]);
 
-        while (rangeLength > 0)
+        // TODO: fertilizer to water is not working
+        foreach (double seed in seedLocations)
         {
-            valueMap[srcStart] = destStart;
-            srcStart++;
-            destStart++;
-            rangeLength--;
+            if (seed >= srcStart && seed < srcStart + rangeLength)
+            {
+                valueMap[seed] = destStart + (seed - srcStart);
+            }
         }
-
-        // // Populate all other keys between 0 and biggestSeed
-        // for (long i = 0; i <= biggestSeed; i++)
-        // {
-        //     if (!valueMap.ContainsKey(i))
-        //     {
-        //         valueMap[i] = i;
-        //     }
-        // }
-
         return valueMap;
     }
 }
